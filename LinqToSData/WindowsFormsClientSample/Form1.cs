@@ -21,39 +21,39 @@ namespace WindowsFormsClientSample
         private void button1_Click(object sender, EventArgs e)
         {
             var repository = new SDataEntityRepository("http://localhost/sdata/slx/dynamic", "admin", "");
-            IQueryable<IContact> query = from contact in repository.CreateQuery<IContact>()
-                                         where contact.FirstName == txtFirstNameSearch.Text
-                                            //&& contact.YearGraduated > 1960
-                                         select contact;
-            _contactList = query.ToList();
+            //IQueryable<IContact> query = from contact in repository.CreateQuery<IContact>()
+            //                             where contact.FirstName == txtFirstNameSearch.Text
+            //                                //&& contact.YearGraduated > 1960
+            //                             select contact;
+            //_contactList = query.ToList();
 
-            if (_contactList.Count == 0)
-                Text = "No matching entities found";
-            
-            ////account query
+            //if (_contactList.Count == 0)
+            //    Text = "No matching entities found";
+
+            //account query
             //var accountList = (from account in repository.CreateQuery<IAccount>()
             //                   where account.Employees > 200
             //                   select account).ToList();
 
-            ////Projecting anonymous type
-            //var miniContacts = from contact in repository.CreateQuery<IContact>()
-            //                   where contact.FirstName == txtFirstNameSearch.Text
-            //                   select new { FN = contact.FirstName, LN = contact.LastName };
-            //var miniList1 = miniContacts.ToList();
+            //Projecting anonymous type
+            var miniContacts = from contact in repository.CreateQuery<IContact>()
+                               where contact.FirstName == txtFirstNameSearch.Text
+                               select new { FN = contact.FirstName, LN = contact.LastName };
+            var miniList1 = miniContacts.ToList();
 
-            ////query using extension methods
-            //miniContacts = repository.CreateQuery<IContact>()
-            //                        .Where(contact2 => contact2.FirstName == txtFirstNameSearch.Text)
-            //                        .Select(contact2 => new { FN = contact2.FirstName, LN = contact2.LastName });
-            //var miniList2 = miniContacts.ToList();
+            //query using extension methods
+            miniContacts = repository.CreateQuery<IContact>()
+                                    .Where(contact2 => contact2.FirstName == txtFirstNameSearch.Text)
+                                    .Select(contact2 => new { FN = contact2.FirstName, LN = contact2.LastName });
+            var miniList2 = miniContacts.ToList();
 
-            ////project anonymous type with string concatenation            
-            //var contactNames = (from contact3 in repository.CreateQuery<IContact>()
-            //                    select new { FullName = contact3.FirstName + " " + contact3.LastName }).ToList();
-            //var contactFullNameList = contactNames.ToList();
+            //project anonymous type with string concatenation            
+            var contactNames = (from contact3 in repository.CreateQuery<IContact>()
+                                select new { FullName = contact3.FirstName + " " + contact3.LastName }).ToList();
+            var contactFullNameList = contactNames.ToList();
 
-            ////get by Id
-            //var contactById = repository.GetEntityById<IContact>("CA2EK0013122");
+            //get by Id
+            var contactById = repository.GetEntityById<IContact>("CA2EK0013122");
             
             _contactIndex = 0;
             BindCurrentEntity();

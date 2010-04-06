@@ -39,10 +39,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.Entity.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="Sage.Integration.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3f422f0ff54abde1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(ProgramFiles)\SalesLogix\SupportFiles\Sage.Integration.Client.dll</HintPath>
-    </Reference>
     <Reference Include="Sage.Integration.Entity.Feeds, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.Integration.Entity.Feeds.dll</HintPath>
@@ -63,6 +59,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.SalesLogix.dll</HintPath>
     </Reference>
+    <Reference Include="Sage.SData.Client, Version=1.2.0.1323, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
