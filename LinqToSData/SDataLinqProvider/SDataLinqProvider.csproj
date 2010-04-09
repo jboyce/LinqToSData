@@ -59,7 +59,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.SalesLogix.dll</HintPath>
     </Reference>
-    <Reference Include="Sage.SData.Client, Version=1.2.0.1323, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Sage.SData.Client, Version=1.2.0.1323, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.SData.Client.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -79,8 +82,6 @@
     <Compile Include="ExpressionVisitor.cs" />
     <Compile Include="ISDataRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Query.cs" />
-    <Compile Include="QueryProvider.cs" />
     <Compile Include="RequestTypeInfo.cs" />
     <Compile Include="SDataEntityRepository.cs" />
     <Compile Include="SDataPropertyProjector.cs" />

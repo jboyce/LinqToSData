@@ -1,12 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
 using System.Reflection;
-using System.Web;
 using Sage.Common.Syndication;
 using Sage.SData.Client;
 using Sage.SData.Client.Extensions;
@@ -22,7 +19,7 @@ using Sage.SData.Client.Atom;
 
 namespace SDataLinqProvider
 {
-    public class SDataQueryProvider<TEntity> : QueryProvider, ISDataCrudProvider
+    public class SDataQueryProvider<TEntity> : IQueryProvider, ISDataCrudProvider
     {
         private string _sdataContractUrl;
         private readonly string _userName;
@@ -43,12 +40,40 @@ namespace SDataLinqProvider
             IncludeNames = new List<string>();
         }
 
-        public override string GetQueryText(Expression expression)
+        IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expression)
+        {
+            return new SDataQuery<S>(this as SDataQueryProvider<S>, expression);
+        }
+
+        IQueryable IQueryProvider.CreateQuery(Expression expression)
+        {
+            Type elementType = TypeSystem.GetElementType(expression.Type);
+            try
+            {
+                return (IQueryable)Activator.CreateInstance(typeof(SDataQuery<>).MakeGenericType(elementType), new object[] { this, expression });
+            }
+            catch (TargetInvocationException tie)
+            {
+                throw tie.InnerException;
+            }
+        }
+
+        S IQueryProvider.Execute<S>(Expression expression)
+        {
+            return (S)this.Execute(expression);
+        }
+
+        object IQueryProvider.Execute(Expression expression)
+        {
+            return this.Execute(expression);
+        }
+
+        public string GetQueryText(Expression expression)
         {
             return Translate(expression);
         }
 
-        public override object Execute(Expression expression)
+        public object Execute(Expression expression)
         {
             string queryText = GetQueryText(expression);
 
@@ -57,23 +82,26 @@ namespace SDataLinqProvider
             if (_projector == null)
                 return entities;
 
-            return ReturnEntityProjection(entities);
+            return ReturnEntityProjection<object>(entities);
         }
 
-        private IEnumerable ReturnEntityProjection(IEnumerable<TEntity> entities)
+        public IEnumerable<TResult> Execute<TResult>(Expression expression)
         {
-            //Type listType = typeof(List<>).MakeGenericType(_projector.Method.ReturnType);
-            //IList list = Activator.CreateInstance(listType) as IList;
+            string queryText = GetQueryText(expression);
 
-            //entities.Select(entity => Convert.ChangeType(_projector.DynamicInvoke(entity),
-            //                                                     _projector.Method.ReturnType))
-            //    .ForEach(entity => list.Add(entity));
-            //return list;    
-            
+            IEnumerable<TEntity> entities = GetEntitiesFromSData(queryText);
+
+            if (_projector == null)
+                return (IEnumerable<TResult>)entities;
+
+            return ReturnEntityProjection<TResult>(entities);
+        }
+
+        private IEnumerable<TResult> ReturnEntityProjection<TResult>(IEnumerable<TEntity> entities)
+        {
             foreach (TEntity entity in entities)
             {
-                yield return Convert.ChangeType(_projector.DynamicInvoke(entity),
-                                                _projector.Method.ReturnType);
+                yield return (TResult)_projector.DynamicInvoke(entity);
             }
         }
 
@@ -188,6 +216,8 @@ namespace SDataLinqProvider
                 convertedValue = Convert.ToInt32(payload.Values[prop.Name]);
             else if (prop.PropertyType.IsAssignableFrom(typeof(decimal)))
                 convertedValue = Convert.ToDecimal(payload.Values[prop.Name]);
+            else if (prop.PropertyType.IsAssignableFrom(typeof(double)))
+                convertedValue = Convert.ToDouble(payload.Values[prop.Name]);
             else
                 convertedValue = Convert.ChangeType(payload.Values[prop.Name], prop.PropertyType);
 
