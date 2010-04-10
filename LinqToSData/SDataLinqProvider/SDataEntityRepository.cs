@@ -7,7 +7,7 @@ namespace SDataLinqProvider
 {
     public class SDataEntityRepository
     {
-        private string _sdataContractUrl;
+        private readonly string _sdataContractUrl;
         private readonly string _userName;
         private readonly string _password;
 
@@ -18,14 +18,14 @@ namespace SDataLinqProvider
             _password = password;
         }
 
-        public SDataQuery<TEntity> CreateQuery<TEntity>()
+        public SDataQuery<TEntity, TEntity> CreateQuery<TEntity>()
         {
-            return new SDataQuery<TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password));
+            return new SDataQuery<TEntity, TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password));
         }
 
-        public SDataQuery<TEntity> CreateQuery<TEntity>(params Expression<Func<TEntity, object>>[] includeExpressions)
+        public SDataQuery<TEntity, TEntity> CreateQuery<TEntity>(params Expression<Func<TEntity, object>>[] includeExpressions)
         {
-            var query = new SDataQuery<TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password));
+            var query = new SDataQuery<TEntity, TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password));
             includeExpressions.ToList().ForEach(includeExpression => query.Include(includeExpression));
             return query;
         }

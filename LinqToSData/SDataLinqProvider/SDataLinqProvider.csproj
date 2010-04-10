@@ -35,14 +35,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\SalesLogix\SupportFiles\Sage.Common.Syndication.dll</HintPath>
     </Reference>
-    <Reference Include="Sage.Entity.Interfaces, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.Entity.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Sage.Integration.Entity.Feeds, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.Integration.Entity.Feeds.dll</HintPath>
-    </Reference>
     <Reference Include="Sage.Integration.Server.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3f422f0ff54abde1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\SalesLogix\SupportFiles\Sage.Integration.Server.Model.dll</HintPath>
@@ -54,10 +46,6 @@
     <Reference Include="Sage.Platform.Application, Version=7.5.2.2136, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.Platform.Application.dll</HintPath>
-    </Reference>
-    <Reference Include="Sage.SalesLogix, Version=7.5.2.2136, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(ProgramFiles)\SalesLogix\ReferenceAssemblies\Sage.SalesLogix.dll</HintPath>
     </Reference>
     <Reference Include="Sage.SData.Client, Version=1.2.0.1323, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

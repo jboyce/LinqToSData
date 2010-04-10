@@ -1,4 +1,5 @@
 using Sage.Platform.Orm.Interfaces;
+
 namespace SDataLinqProvider
 {
     public interface ISDataCrudProvider

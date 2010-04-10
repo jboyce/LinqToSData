@@ -8,11 +8,6 @@ using Sage.Integration.Messaging.Model;
 
 namespace SDataLinqProvider
 {
-    public abstract class SDataProjectionRow
-    {
-        public abstract object GetValue(int index);
-    }
-
     internal class TranslateResult
     {
         internal string QueryText;
@@ -22,11 +17,11 @@ namespace SDataLinqProvider
     public class SDataQueryTranslator : ExpressionVisitor
     {
         private StringBuilder _sb;
-        private string _sdataContractUrl;
+        private readonly string _sdataContractUrl;
         private Dictionary<Type, string> _resourceKindMappings;
         private Expression _projector;
         private bool _hasQueryParameters = false;
-        private Type _entityType;
+        private readonly Type _entityType;
 
         public SDataQueryTranslator(string sdataContractUrl, Type entityType)
         {
@@ -61,14 +56,14 @@ namespace SDataLinqProvider
             _sb.Append("&include=" + string.Join(",", includeNames.ToArray()));
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression m)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpr)
         {
-            foreach (var argument in m.Arguments.OfType<MethodCallExpression>())
+            foreach (var argument in methodCallExpr.Arguments.OfType<MethodCallExpression>())
             {
                 VisitMethodCall(argument);
             }
 
-            if (m.Method.DeclaringType == typeof(Queryable))
+            if (methodCallExpr.Method.DeclaringType == typeof(Queryable))
             {
                 if (!_hasQueryParameters)
                 {
@@ -78,33 +73,33 @@ namespace SDataLinqProvider
                 else
                     _sb.Append("&");
 
-                if (m.Method.Name == "Where")
+                if (methodCallExpr.Method.Name == "Where")
                 {
                     _sb.Append("where=");
-                    this.Visit(m.Arguments[0]);
-                    LambdaExpression lambda = (LambdaExpression) StripQuotes(m.Arguments[1]);
-                    this.Visit(lambda.Body);
-                    return m;
+                    Visit(methodCallExpr.Arguments[0]);
+                    LambdaExpression lambda = (LambdaExpression) StripQuotes(methodCallExpr.Arguments[1]);
+                    Visit(lambda.Body);
+                    return methodCallExpr;
                 }
-                else if (m.Method.Name == "Select")
+                else if (methodCallExpr.Method.Name == "Select")
                 {
-                    LambdaExpression lambda = (LambdaExpression)StripQuotes(m.Arguments[1]);
+                    LambdaExpression lambda = (LambdaExpression)StripQuotes(methodCallExpr.Arguments[1]);
                     _projector = lambda;
                     SDataPropertyProjection projection = new SDataPropertyProjector()
                         .ProjectProperties(lambda.Body);
                     _sb.Append("select=");
                     _sb.Append(projection.Properties);
-                    return m;
+                    return methodCallExpr;
                 }
             }
-            throw new NotSupportedException(string.Format("The method '{0}' is not supported", m.Method.Name));
+            throw new NotSupportedException(string.Format("The method '{0}' is not supported", methodCallExpr.Method.Name));
         }
 
-        protected override Expression VisitBinary(BinaryExpression b)
+        protected override Expression VisitBinary(BinaryExpression binaryExpr)
         {
             _sb.Append("(");
-            this.Visit(b.Left);
-            switch (b.NodeType)
+            Visit(binaryExpr.Left);
+            switch (binaryExpr.NodeType)
             {
                 case ExpressionType.And:
                     _sb.Append(" and ");
@@ -134,64 +129,58 @@ namespace SDataLinqProvider
                     _sb.Append(" ge ");
                     break;
                 default:
-                    throw new NotSupportedException(string.Format("The binary operator '{0}' is not supported", b.NodeType));
+                    throw new NotSupportedException(string.Format("The binary operator '{0}' is not supported", binaryExpr.NodeType));
             }
-            this.Visit(b.Right);
+            Visit(binaryExpr.Right);
             _sb.Append(")");
-            return b;
+            return binaryExpr;
         }
 
-        protected override Expression VisitConstant(ConstantExpression c)
+        protected override Expression VisitConstant(ConstantExpression constantExpr)
         {
-            IQueryable q = c.Value as IQueryable;
-            if (q != null)
-            {
-                // assume constant nodes w/ IQueryables are table references
-                //_sb.Append(q.ElementType.Name);
-            }
-            else if (c.Value == null)
+            if (constantExpr.Value == null)
             {
                 _sb.Append("NULL");
             }
             else
             {
-                switch (Type.GetTypeCode(c.Value.GetType()))
+                switch (Type.GetTypeCode(constantExpr.Value.GetType()))
                 {
                     case TypeCode.Boolean:
-                        _sb.Append(((bool)c.Value) ? 1 : 0);
+                        _sb.Append(((bool)constantExpr.Value) ? 1 : 0);
                         break;
                     case TypeCode.String:
                         _sb.Append("'");
-                        _sb.Append(c.Value);
+                        _sb.Append(constantExpr.Value);
                         _sb.Append("'");
                         break;
                     case TypeCode.Object:
-                        throw new NotSupportedException(string.Format("The constant for '{0}' is not supported", c.Value));
+                        throw new NotSupportedException(string.Format("The constant for '{0}' is not supported", constantExpr.Value));
                     default:
-                        _sb.Append(c.Value);
+                        _sb.Append(constantExpr.Value);
                         break;
                 }
             }
-            return c;
+            return constantExpr;
         }
 
-        protected override Expression VisitMemberAccess(MemberExpression m)
+        protected override Expression VisitMemberAccess(MemberExpression memberExpr)
         {
-            if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter)
+            if (memberExpr.Expression != null && memberExpr.Expression.NodeType == ExpressionType.Parameter)
             {
-                _sb.Append(m.Member.Name);
-                return m;
+                _sb.Append(memberExpr.Member.Name);
+                return memberExpr;
             }
-            throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));
+            throw new NotSupportedException(string.Format("The member '{0}' is not supported", memberExpr.Member.Name));
         }
 
-        private static Expression StripQuotes(Expression e)
+        private static Expression StripQuotes(Expression expression)
         {
-            while (e.NodeType == ExpressionType.Quote)
+            while (expression.NodeType == ExpressionType.Quote)
             {
-                e = ((UnaryExpression)e).Operand;
+                expression = ((UnaryExpression)expression).Operand;
             }
-            return e;
+            return expression;
         }
 
         internal Dictionary<Type, string> ResourceKindMappings

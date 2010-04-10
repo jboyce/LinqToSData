@@ -17,6 +17,4 @@ calling code snippet properties that use NHibernate will not work
 Include support that is currently part of the API does not work
 There is no error handling
 Updates are broken
-Paging is not implemented (only the first page is returned)
-There is a typecast error executing a select query that does not return the querying entity when there is no where clause
 ETags aren't captured after inserts and updates, so a get (select query or GetById) is required before executing an update or delete.

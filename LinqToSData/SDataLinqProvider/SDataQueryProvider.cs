@@ -1,19 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Sage.Common.Syndication;
-using Sage.SData.Client;
 using Sage.SData.Client.Extensions;
-using Sage.Integration.Messaging.Model;
-using Sage.Common.Metadata;
 using Sage.Platform.Orm.Interfaces;
 using Sage.Platform.ComponentModel;
-using Sage.SalesLogix.Orm;
-using Sage.Platform.ChangeManagement;
-using System.ComponentModel;
 using Sage.SData.Client.Core;
 using Sage.SData.Client.Atom;
 
@@ -21,14 +14,14 @@ namespace SDataLinqProvider
 {
     public class SDataQueryProvider<TEntity> : IQueryProvider, ISDataCrudProvider
     {
-        private string _sdataContractUrl;
+        private readonly string _sdataContractUrl;
         private readonly string _userName;
         private readonly string _password;
         internal List<string> IncludeNames { get; private set; }
         private Delegate _projector;
-        private SDataService _sdataService;
-        private RequestTypeInfo _requestTypeInfo;
-        private static WeakDictionary<object, string> _eTagCache = new WeakDictionary<object, string>();
+        private readonly SDataService _sdataService;
+        private readonly RequestTypeInfo _requestTypeInfo;
+        private static readonly WeakDictionary<object, string> _eTagCache = new WeakDictionary<object, string>();
 
         public SDataQueryProvider(string sdataContractUrl, string userName, string password)
         {
@@ -40,9 +33,9 @@ namespace SDataLinqProvider
             IncludeNames = new List<string>();
         }
 
-        IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expression)
+        IQueryable<TReturnElement> IQueryProvider.CreateQuery<TReturnElement>(Expression expression)
         {
-            return new SDataQuery<S>(this as SDataQueryProvider<S>, expression);
+            return new SDataQuery<TReturnElement, TEntity>(this, expression);
         }
 
         IQueryable IQueryProvider.CreateQuery(Expression expression)
@@ -50,7 +43,7 @@ namespace SDataLinqProvider
             Type elementType = TypeSystem.GetElementType(expression.Type);
             try
             {
-                return (IQueryable)Activator.CreateInstance(typeof(SDataQuery<>).MakeGenericType(elementType), new object[] { this, expression });
+                return (IQueryable)Activator.CreateInstance(typeof(SDataQuery<,>).MakeGenericType(elementType, typeof(TEntity)), new object[] { this, expression });
             }
             catch (TargetInvocationException tie)
             {
@@ -60,12 +53,12 @@ namespace SDataLinqProvider
 
         S IQueryProvider.Execute<S>(Expression expression)
         {
-            return (S)this.Execute(expression);
+            return (S)Execute(expression);
         }
 
         object IQueryProvider.Execute(Expression expression)
         {
-            return this.Execute(expression);
+            return Execute(expression);
         }
 
         public string GetQueryText(Expression expression)
@@ -111,11 +104,16 @@ namespace SDataLinqProvider
             SDataUri uri = new SDataUri(sdataQuery);
             if (!string.IsNullOrEmpty(uri.Where))
                 request.QueryValues["where"] = uri.Where;
-            //handle select
+            
+            if (uri.QueryArgs.ContainsKey("select"))
+                request.QueryValues["select"] = uri.QueryArgs["select"];
+
             Type concreteEntityType = FindConcreteEntityType();
 
             var reader = request.ExecuteReader();
             var currentEntry = reader.Current;
+
+            //resorting to a while loop since the reader seems to have a bug where it modifies the enumeration
             while (currentEntry != null)
             {
                 var entity = Activator.CreateInstance(concreteEntityType) as IPersistentEntity;

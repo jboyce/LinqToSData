@@ -32,8 +32,8 @@ namespace WindowsFormsClientSample
                                          select contact;
             _contactList = query.ToList();
 
-            //if (_contactList.Count == 0)
-            //    Text = "No matching entities found";
+            if (_contactList.Count == 0)
+                Text = "No matching entities found";
 
             //var accountList = (from account in repository.CreateQuery<IAccount>()
             //                   where account.Employees > 200

@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 
 namespace SDataLinqProvider
@@ -17,24 +16,24 @@ namespace SDataLinqProvider
         internal SDataPropertyProjection ProjectProperties(Expression expression)
         {
             _sb = new StringBuilder();
-            Expression selector = this.Visit(expression);
+            Expression selector = Visit(expression);
             return new SDataPropertyProjection { Properties = _sb.ToString(), Selector = selector };
         }
 
-        protected override Expression VisitMemberAccess(MemberExpression m)
+        protected override Expression VisitMemberAccess(MemberExpression memberExpression)
         {
-            if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter)
+            if (memberExpression.Expression != null && memberExpression.Expression.NodeType == ExpressionType.Parameter)
             {
                 if (_sb.Length > 0)
                 {
                     _sb.Append(",");
                 }
-                _sb.Append(m.Member.Name);
-                return base.VisitMemberAccess(m);
+                _sb.Append(memberExpression.Member.Name);
+                return base.VisitMemberAccess(memberExpression);
             }
             else
             {
-                return base.VisitMemberAccess(m);
+                return base.VisitMemberAccess(memberExpression);
             }
         }
     }
