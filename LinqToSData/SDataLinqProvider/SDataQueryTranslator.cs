@@ -138,6 +138,12 @@ namespace SDataLinqProvider
 
         protected override Expression VisitConstant(ConstantExpression constantExpr)
         {
+            IQueryable q = constantExpr.Value as IQueryable;
+            if (q != null)
+            {
+                return constantExpr;
+            }
+            
             if (constantExpr.Value == null)
             {
                 _sb.Append("NULL");
@@ -195,25 +201,15 @@ namespace SDataLinqProvider
 
         private void BuildupResourceKindMappings()
         {
-            BuildupResourceKindMappings752();
-        }
-
-        private void BuildupResourceKindMappingsForAugusta()
-        {
-            Assembly assembly = Assembly.Load("Sage.Integration.Entity.Feeds");
-            var requestTypes = assembly.GetTypes().Where(type => type.BaseType.Name.StartsWith("RequestHandlerBase"));
-            _resourceKindMappings = requestTypes.ToDictionary(
-                type => type.BaseType.GetGenericArguments()[2],
+            Assembly assembly = Assembly.Load("Sage.SData.Client.Entities");
+            _resourceKindMappings = assembly.GetTypes().ToDictionary(
+                type => GetEntityInterfaceFromType(type),
                 type => GetResourcePath(type));
         }
-
-        private void BuildupResourceKindMappings752()
+        
+        private Type GetEntityInterfaceFromType(Type type)
         {
-            Assembly assembly = Assembly.Load("Sage.Integration.Entity.Feeds");
-            var requestTypes = assembly.GetTypes().Where(type => type.BaseType.Name.StartsWith("DynamicRequestBase"));
-            _resourceKindMappings = requestTypes.ToDictionary(
-                type => type.BaseType.GetGenericArguments()[2],
-                type => GetResourcePath(type));
+            return type.GetInterfaces().First(intf => intf.FullName.Contains("Sage.Entity.Interfaces"));
         }
 
         private string GetResourcePath(Type type)

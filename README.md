@@ -6,14 +6,17 @@ There is also limited CRUD from the SDataEntityRepository class.
 USE
 The provider and sample app are based on 7.5.2.  You must have a 7.5.2 SData portal to use it.
 Assembly references are retrieved from the SalesLogix assembly references folder.
-You need to put a copy of the generated Sage.Integration.Entity.Feeds.dll in your assembly references folder.
-You need to place copies of the generated concrete entities in the sample client's bin folder to use the sample.
+CustomBuild.AdminModule.csproj is an AA admin module used to build entity classes that implement Sage.Entity.Interfaces that are suitable to be used with SData.
+You should modify the build event in CustomBuild.AdminModule.csproj to copy itself out to where you run your application architect.
+Copy the included code template, Default-SDataClientEntity-SalesLogix.SDataClientEntity.codetemplate.xml, to your model (\Model\Entity Model\CodeTemplates\Entity\)
+To build these new entities: from the build menu, choose Packages, and then "SData Client Entities"
+Copy the built assembly Sage.SData.Client.Entities.dll from \Model\deployment\webroot\common\bin\ to your client application's bin debug folder
 
 LIMITATIONS AND BUGS
 Only the Where and Select linq query methods are implemented
 not all query operators are implemented
 There is no relationship support at all
-calling code snippet properties that use NHibernate will not work
+calling code snippet properties does not work
 Include support that is currently part of the API does not work
 There is no error handling
 Updates are broken

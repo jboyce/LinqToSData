@@ -141,7 +141,7 @@ namespace SDataLinqProvider
 
         internal static Type FindConcreteEntityType()
         {
-            Assembly assembly = Assembly.Load("Sage.SalesLogix.Entities");
+            Assembly assembly = Assembly.Load("Sage.SData.Client.Entities");
             return assembly.GetTypes().Where(type => typeof (TEntity).IsAssignableFrom(type)).First();
         }                
 
@@ -149,6 +149,7 @@ namespace SDataLinqProvider
         {
             expression = Evaluator.PartialEval(expression);
             TranslateResult result = new SDataQueryTranslator(_sdataContractUrl, typeof(TEntity)).Translate(expression, IncludeNames);
+
             if (result.Projector != null)
                 _projector = (result.Projector as LambdaExpression).Compile();
             return result.QueryText;

@@ -11,7 +11,7 @@ namespace SDataLinqProvider
     {
         protected SDataQueryProvider<TEntity> _provider;
         protected Expression _expression;
-        private List<string> _includeNames = new List<string>();
+        //private List<string> _includeNames = new List<string>();
 
         public SDataQuery(SDataQueryProvider<TEntity> provider)
         {
@@ -76,7 +76,7 @@ namespace SDataLinqProvider
             if (memExpression.Member.MemberType != MemberTypes.Property)
                 throw new Exception("Include expression does not refer to a property on the entity.");
 
-            _includeNames.Add(memExpression.Member.Name);
+            //_includeNames.Add(memExpression.Member.Name);
             _provider.IncludeNames.Add(memExpression.Member.Name);
 
             return this;
