@@ -202,6 +202,8 @@ namespace CustomBuild.AdminModule
             // SData libraries
             AddReference("Sage.Integration.Server.Model", Path.Combine(SystemLibraryPath, "Sage.Integration.Server.Model.dll"), false, false);
 
+            AddReference("SDataLinqProvider", Path.Combine(SystemLibraryPath, "SDataLinqProvider.dll"), false, false);
+
             // Base Class Library
             References.AddNewItem("Reference", "System");
             References.AddNewItem("Reference", "System.Data");

@@ -9,6 +9,7 @@ Assembly references are retrieved from the SalesLogix assembly references folder
 CustomBuild.AdminModule.csproj is an AA admin module used to build entity classes that implement Sage.Entity.Interfaces that are suitable to be used with SData.
 You should modify the build event in CustomBuild.AdminModule.csproj to copy itself out to where you run your application architect.
 Copy the included code template, Default-SDataClientEntity-SalesLogix.SDataClientEntity.codetemplate.xml, to your model (\Model\Entity Model\CodeTemplates\Entity\)
+Copy the built SDataLinqProvider.dll to your SalesLogix reference assemblies folder
 To build these new entities: from the build menu, choose Packages, and then "SData Client Entities"
 Copy the built assembly Sage.SData.Client.Entities.dll from \Model\deployment\webroot\common\bin\ to your client application's bin debug folder
 

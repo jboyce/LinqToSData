@@ -9,6 +9,7 @@
 <#@ assembly name="Sage.Platform.Orm.CodeGen.dll" #>
 <#@ assembly name="Sage.Platform.Projects.dll" #>
 <#@ assembly name="CustomBuild.AdminModule.dll" #>
+<#@ assembly name="SDataLinqProvider.dll" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.Collections" #>
 <#@ import namespace="System.Collections.Generic" #>
@@ -17,6 +18,7 @@
 <#@ import namespace="Sage.Platform.Orm.Entities" #>
 <#@ import namespace="Sage.Platform.Security" #>
 <#@ import namespace="CustomBuild.AdminModule" #>
+<#@ import namespace="SDataLinqProvider" #>
 
 <#
 var tools = (Tools) Context["tools"];
@@ -56,20 +58,15 @@ using Sage.Platform.Orm;
 using Sage.Platform.Orm.Attributes;
 using Sage.Platform.Orm.Interfaces;
 using Sage.Platform.Security;
+using SDataLinqProvider;
 
 namespace Sage.SalesLogix.SData.Entities
 {
     [RequestPath("<#= entity.SDataPathName #>")]
-    public class <#= entity.Name #> : <#= entity.InterfaceName #>
+    public class <#= entity.Name #> : <#= entity.InterfaceName #>, IAssignableId, ISDataClientEntity
     {
     <# foreach (var prop in generator.GetIncludedProperties(entity)) { #>
-      private <#= generator.ToClrType(prop) #> _<#= prop.PropertyName #>;
-<# } #>
-
-<# foreach (var relation in entity.ParentEntities) { #>
-<#  if (relation.ChildProperty.Include) { #>
-        private <#= relation.ParentEntity.InterfaceName #> _<#= relation.ChildProperty.PropertyName #>;
-<#  } #>
+    private <#= generator.ToClrType(prop) #> _<#= prop.PropertyName #>;
 <# } #>
 
 <# if (entity.ChildEntities.Count > 0) { #>
@@ -78,14 +75,11 @@ namespace Sage.SalesLogix.SData.Entities
 <#  foreach (var relation in entity.ChildEntities) { #>
 <#   if (relation.ParentProperty.Include && relation.Cardinality == "1:M") { #>
         private EntitySet<<#= relation.ChildEntity.InterfaceName #>> _<#= relation.ParentProperty.PropertyName #>;
-<#   } else if (relation.ParentProperty.Include && relation.Cardinality == "M:1") { #>
-        private <#= relation.ChildEntity.InterfaceName #> _<#= relation.ParentProperty.PropertyName #>;
 <#   } #>
 <#  } #>
 
         #endregion 1:M and M:1 fields
 <# } #>
-
 
 <# foreach (var prop in generator.GetIncludedProperties(entity)) { #>
         public virtual <#= generator.ToClrType(prop) #> <#= prop.PropertyName #>
@@ -95,12 +89,12 @@ namespace Sage.SalesLogix.SData.Entities
                 return _<#= prop.PropertyName #>;
             }
             <#   if (!(prop is OrmFieldProperty && ((OrmFieldProperty) prop).IsReadOnly)) { #>
-            set
+set
             {
                 _<#= prop.PropertyName #> = value;
             }
-            <#    } #>
-        }
+            <# } #>
+}
 <# } #>
 
 <#  foreach (var relation in entity.ChildEntities) { #>
@@ -110,7 +104,7 @@ namespace Sage.SalesLogix.SData.Entities
 <#    } else if (relation.Cardinality == "M:1") { #>
 <#     if (relation.ParentProperty.IsNullable) { #>
 <#     } #>
-        public <#= relation.ChildEntity.InterfaceName #> <#= relation.ParentProperty.PropertyName #> { get; set; }
+        <# RelationshipEntityProperty(relation.ChildEntity.InterfaceName, relation.ParentProperty.PropertyName); #>
 <#    } #>
 <#   } #>
 <#  } #>
@@ -118,8 +112,7 @@ namespace Sage.SalesLogix.SData.Entities
         #region M:1 Relationships
 <# foreach (var relation in entity.ParentEntities) { #>
 <#  if (relation.ChildProperty.Include) { #>
-        public <#= relation.ParentEntity.InterfaceName #> <#= relation.ChildProperty.PropertyName #> { get; set; }
-
+        <# RelationshipEntityProperty(relation.ParentEntity.InterfaceName, relation.ChildProperty.PropertyName); #>
 <#  } #>
 <# } #>
         #endregion M:1 Relationships
@@ -128,7 +121,7 @@ namespace Sage.SalesLogix.SData.Entities
 <# if (entity.IsExtension) { #>
         #region 1:1 Parent Entity Extension
 
-        public <#= entity.ExtendedEntity.InterfaceName #> <#= entity.ExtendedEntity.Name #> { get; set ; }
+        <# RelationshipEntityProperty(entity.ExtendedEntity.InterfaceName, entity.ExtendedEntity.Name); #>
 
         #endregion 1:1 Parent Entity Extension
 <# } #>
@@ -136,7 +129,7 @@ namespace Sage.SalesLogix.SData.Entities
 <# if (entity.ExtensionEntities.Count > 0) { #>
         #region Child extensions
 <#  foreach (var child in entity.ExtensionEntities) { #>
-        public <#= child.InterfaceName #> <#= child.Name #> { get; set; }
+        <# RelationshipEntityProperty(child.InterfaceName, child.Name); #>
 <#  } #>
         #endregion Child extensions
 <# } #>
@@ -145,7 +138,7 @@ namespace Sage.SalesLogix.SData.Entities
 <# if (methods.Count > 0) { #>
         #region Business Rule Methods
 <#  foreach (var method in methods) { #>
-        public <#= method.ReturnType #> <#= method.MethodName #>(<#= tools.FormatParamDeclarationList(method) #>)
+        public virtual <#= method.ReturnType #> <#= method.MethodName #>(<#= tools.FormatParamDeclarationList(method) #>)
         {
           throw new NotImplementedException();
         }
@@ -167,7 +160,15 @@ namespace Sage.SalesLogix.SData.Entities
 
     public PersistentState PersistentState { get { throw new NotImplementedException(); } }
 
-    public object Id { get { return null; } }
+    private object _id;
+    
+    public object Id { get { return _id; } }
+    
+    object IAssignableId.Id 
+    { 
+      get { return _id; }
+      set { _id = value; }
+    }
 
     public object this[string propertyName] 
     { 
@@ -184,15 +185,46 @@ namespace Sage.SalesLogix.SData.Entities
 <# } #>
         #endregion Custom Properties
 
-    public bool Creating { get { throw new NotImplementedException(); } }
+      public bool Creating { get { throw new NotImplementedException(); } }
     
-    public Guid InstanceId { get { throw new NotImplementedException(); } }
+      public Guid InstanceId { get { throw new NotImplementedException(); } }
     
+      private SDataEntityRepository _Repository;
+      SDataEntityRepository ISDataClientEntity.Repository
+      { 
+        get { return _Repository; } 
+        set { _Repository = value; }
+      }
+      string ISDataClientEntity.ETag { get; set; }
+      private Dictionary<string, string> _ForeignKeys;
+      Dictionary<string, string> ISDataClientEntity.ForeignKeys 
+      { 
+        get { return _ForeignKeys; } 
+        set { _ForeignKeys = value; }
+      }      
     }
 }
 <#+
 [Dependency]
 public IDictionary Context { get; set; }
-#>]]></template>
+#>
+<#+ private void RelationshipEntityProperty(string interfaceName, string propertyName) { #>
+
+        private <#= interfaceName #> _<#= propertyName #>;
+
+        public <#= interfaceName #> <#= propertyName #> 
+        { 
+          get
+          {
+            if (_<#= propertyName #> == null)
+            {
+              string id = _ForeignKeys["<#= propertyName #>"];
+              _<#= propertyName #> = _Repository.GetEntityById<<#= interfaceName #>>(id);
+            }
+            return _<#= propertyName #>;
+          } 
+          set { _<#= propertyName #> = value; } 
+        }
+<#+ } #>]]></template>
   <description>Default SalesLogix SData Client Entity Template</description>
 </codeTemplate>

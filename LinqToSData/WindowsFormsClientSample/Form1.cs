@@ -57,8 +57,12 @@ namespace WindowsFormsClientSample
             //var contactFullNameList = contactNames.ToList();
 
             ////get by Id
-            //var contactById = repository.GetEntityById<IContact>("CA2EK0013122");
-            
+            var contactById = repository.GetEntityById<IContact>("CA2EK0013122");
+
+            //lazy loaded relationship
+            var accountName = contactById.Account.AccountName;
+            var street = contactById.Account.Address.Address1;
+
             _contactIndex = 0;
             BindCurrentEntity();
         }

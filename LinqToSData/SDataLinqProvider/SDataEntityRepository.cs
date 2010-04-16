@@ -20,19 +20,19 @@ namespace SDataLinqProvider
 
         public SDataQuery<TEntity, TEntity> CreateQuery<TEntity>()
         {
-            return new SDataQuery<TEntity, TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password));
+            return new SDataQuery<TEntity, TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password, this));
         }
 
         public SDataQuery<TEntity, TEntity> CreateQuery<TEntity>(params Expression<Func<TEntity, object>>[] includeExpressions)
         {
-            var query = new SDataQuery<TEntity, TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password));
+            var query = new SDataQuery<TEntity, TEntity>(new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password, this));
             includeExpressions.ToList().ForEach(includeExpression => query.Include(includeExpression));
             return query;
         }
 
         public TEntity GetEntityById<TEntity>(string id)
         {
-            var provider = new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password);
+            var provider = new SDataQueryProvider<TEntity>(_sdataContractUrl, _userName, _password, this);
             return provider.GetEntity(id);
         }
 

@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Evaluator.cs" />
     <Compile Include="ExpressionVisitor.cs" />
+    <Compile Include="ISDataClientEntity.cs" />
     <Compile Include="ISDataRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestTypeInfo.cs" />

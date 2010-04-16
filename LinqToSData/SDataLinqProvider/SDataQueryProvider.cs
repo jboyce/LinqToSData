@@ -21,14 +21,17 @@ namespace SDataLinqProvider
         private Delegate _projector;
         private readonly SDataService _sdataService;
         private readonly RequestTypeInfo _requestTypeInfo;
+        private SDataEntityRepository _repository;
         private static readonly WeakDictionary<object, string> _eTagCache = new WeakDictionary<object, string>();
 
-        public SDataQueryProvider(string sdataContractUrl, string userName, string password)
+        public SDataQueryProvider(string sdataContractUrl, string userName, string password, 
+            SDataEntityRepository repository)
         {
             _sdataContractUrl = sdataContractUrl;
             _userName = userName;
             _password = password;
             _requestTypeInfo = new RequestTypeInfo(typeof(TEntity));
+            _repository = repository;
             _sdataService = new SDataService(_sdataContractUrl, _userName, _password);
             IncludeNames = new List<string>();
         }
@@ -192,6 +195,12 @@ namespace SDataLinqProvider
             }
 
             (entity as IAssignableId).Id = payload.Key;
+            var sDataEntity = (ISDataClientEntity)entity;
+            sDataEntity.Repository = _repository;
+
+            //store foreign keys
+            sDataEntity.ForeignKeys = payload.Values.Where(prop => prop.Value is SDataPayload)
+                .ToDictionary(p => p.Key, p => (p.Value as SDataPayload).Key);
         }
 
         private void SetEntityProperty(PropertyInfo prop, SDataPayload payload, IPersistentEntity entity)

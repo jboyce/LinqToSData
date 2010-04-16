@@ -39,7 +39,7 @@ namespace CustomBuild.AdminModule
             if (templates.Count > 0)
                 return templates[0];
 
-            throw new BuildException("Missing sdata code generation template");
+            throw new BuildException("Missing sdata client entity code generation template");
         }
 
     }
