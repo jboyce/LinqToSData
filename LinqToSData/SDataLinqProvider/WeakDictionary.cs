@@ -6,7 +6,7 @@ namespace SDataLinqProvider
 {
     // Adds strong typing to WeakReference.Target using generics. Also,
     // the Create factory method is used in place of a constructor
-    // to handle the case where target is null, but we want the 
+    // to handle the case where target is null, but we want the
     // reference to still appear to be alive.
     internal class WeakReference<T> : WeakReference where T : class
     {
@@ -28,7 +28,7 @@ namespace SDataLinqProvider
     }
 
     // Provides a weak reference to a null target object, which, unlike
-    // other weak references, is always considered to be alive. This 
+    // other weak references, is always considered to be alive. This
     // facilitates handling null dictionary values, which are perfectly
     // legal.
     internal class WeakNullReference<T> : WeakReference<T> where T : class
@@ -61,7 +61,7 @@ namespace SDataLinqProvider
 
     // Compares objects of the given type or WeakKeyReferences to them
     // for equality based on the given comparer. Note that we can only
-    // implement IEqualityComparer<T> for T = object as there is no 
+    // implement IEqualityComparer<T> for T = object as there is no
     // other common base between T and WeakKeyReference<T>. We need a
     // single comparer to handle both types because we don't want to
     // allocate a new weak reference for every lookup.
@@ -91,10 +91,10 @@ namespace SDataLinqProvider
         //  Let Wa = Alive Weak Reference
         //  Let Wd = Dead Weak Reference
         //  Let S  = Strong Reference
-        //  
+        //
         //  x  | y  | Equals(x,y)
         // -------------------------------------------------
-        //  Wa | Wa | comparer.Equals(x.Target, y.Target) 
+        //  Wa | Wa | comparer.Equals(x.Target, y.Target)
         //  Wa | Wd | false
         //  Wa | S  | comparer.Equals(x.Target, y)
         //  Wd | Wa | false
@@ -138,11 +138,11 @@ namespace SDataLinqProvider
     }
 
     /// <summary>
-    /// A generic dictionary, which allows both its keys and values 
+    /// A generic dictionary, which allows both its keys and values
     /// to be garbage collected if there are no other references
     /// to them than from the dictionary itself.
     /// </summary>
-    /// 
+    ///
     /// <remarks>
     /// If either the key or value of a particular entry in the dictionary
     /// has been collected, then both the key and value become effectively
@@ -271,7 +271,7 @@ namespace SDataLinqProvider
     /// <summary>
     /// Represents a dictionary mapping keys to values.
     /// </summary>
-    /// 
+    ///
     /// <remarks>
     /// Provides the plumbing for the portions of IDictionary<TKey,
     /// TValue> which can reasonably be implemented without any

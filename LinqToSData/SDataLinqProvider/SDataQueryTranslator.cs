@@ -40,12 +40,12 @@ namespace SDataLinqProvider
 
         internal string IdToQueryText(string entityId)
         {
-            return GetResourceUrl() + "('" + entityId + "')";    
+            return GetResourceUrl() + "('" + entityId + "')";
         }
 
         internal string GetResourceUrl()
         {
-            return _sdataContractUrl + "/-/" + ResourceKindMappings[_entityType];                
+            return _sdataContractUrl + "/-/" + ResourceKindMappings[_entityType];
         }
 
         private void AddIncludes(IEnumerable<string> includeNames)
@@ -143,7 +143,7 @@ namespace SDataLinqProvider
             {
                 return constantExpr;
             }
-            
+
             if (constantExpr.Value == null)
             {
                 _sb.Append("NULL");
@@ -206,7 +206,7 @@ namespace SDataLinqProvider
                 type => GetEntityInterfaceFromType(type),
                 type => GetResourcePath(type));
         }
-        
+
         private Type GetEntityInterfaceFromType(Type type)
         {
             return type.GetInterfaces().First(intf => intf.FullName.Contains("Sage.Entity.Interfaces"));
