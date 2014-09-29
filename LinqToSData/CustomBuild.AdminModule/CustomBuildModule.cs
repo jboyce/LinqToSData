@@ -34,7 +34,7 @@ namespace CustomBuild.AdminModule
                 var platformAdminModule = ApplicationContext.Current.Modules.Get<Sage.Platform.AdminModule.AdminModuleInit>();
                 if (platformAdminModule != null)
                 {
-                    ModuleWorkItem.Commands[_buildCommandUrl].ExecuteAction += platformAdminModule.BuildPackageCommand;                
+                    ModuleWorkItem.Commands[_buildCommandUrl].ExecuteAction += platformAdminModule.BuildPackageCommand;
                     _buildCommandInitialized = true;
                 }
             }
@@ -73,7 +73,7 @@ namespace CustomBuild.AdminModule
             buildPackagesMenu.ChildElements = new ChildElementCollection();
 
             var attrib = (DisplayNameAttribute)Attribute.GetCustomAttribute(
-                typeof(SDataClientEntityDeploymentPackage), 
+                typeof(SDataClientEntityDeploymentPackage),
                 typeof(DisplayNameAttribute));
             string menuText = attrib.DisplayName;
 
@@ -81,10 +81,10 @@ namespace CustomBuild.AdminModule
                 "mnu://MainMenu/Build/Packages/" + typeof(SDataClientEntityDeploymentPackage).GUID,
                 menuText,
                 _buildCommandUrl);
-            buildPackagesMenu.ChildElements.Add(packageItem);            
+            buildPackagesMenu.ChildElements.Add(packageItem);
 
             moduleConfig.UIElements.Add(buildPackagesMenu);
-            
+
             return moduleConfig;
         }
 

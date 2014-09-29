@@ -51,7 +51,7 @@ namespace WindowsFormsClientSample
             //                        .Select(contact2 => new { FN = contact2.FirstName, LN = contact2.LastName });
             //var miniList2 = miniContacts.ToList();
 
-            ////project anonymous type with string concatenation            
+            ////project anonymous type with string concatenation
             //var contactNames = (from contact3 in repository.CreateQuery<IContact>()
             //                    select new { FullName = contact3.FirstName + " " + contact3.LastName }).ToList();
             //var contactFullNameList = contactNames.ToList();
@@ -99,7 +99,7 @@ namespace WindowsFormsClientSample
         {
             const string address1 = "My Street";
             var repository = new SDataEntityRepository(SDATA_CONTRACT_URL, SDATA_USERNAME, SDATA_PASSWORD);
-            
+
             IAddress newAddress = repository.Create<IAddress>();
             newAddress.Address1 = address1;
             newAddress.City = "Scottsdale";
@@ -112,7 +112,7 @@ namespace WindowsFormsClientSample
             var addressQuery = from address in repository.CreateQuery<IAddress>()
                                where address.Address1 == address1
                                select address;
-            var getAddress = addressQuery.ToList().First();            
+            var getAddress = addressQuery.ToList().First();
             repository.Delete(getAddress);
         }
     }

@@ -69,7 +69,7 @@ namespace CustomBuild.AdminModule
             BaseEntityGenerator baseGen = new SDataClientEntityCodeGenerator();
             baseGen.Initialize(WorkingDirectoryPath);
             generatorList.Add(baseGen);
-            
+
             // Ensure all paths are created
             foreach (var gen in generatorList)
             {

@@ -26,13 +26,13 @@ namespace SDataLinqProvider
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
-            
+
             if (expression == null)
                 throw new ArgumentNullException("expression");
-            
+
             if (!typeof(IQueryable<TReturnElement>).IsAssignableFrom(expression.Type))
                 throw new ArgumentOutOfRangeException("expression");
-            
+
             _provider = provider;
             _expression = expression;
         }

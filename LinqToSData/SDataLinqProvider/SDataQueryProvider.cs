@@ -24,7 +24,7 @@ namespace SDataLinqProvider
         private SDataEntityRepository _repository;
         private static readonly WeakDictionary<object, string> _eTagCache = new WeakDictionary<object, string>();
 
-        public SDataQueryProvider(string sdataContractUrl, string userName, string password, 
+        public SDataQueryProvider(string sdataContractUrl, string userName, string password,
             SDataEntityRepository repository)
         {
             _sdataContractUrl = sdataContractUrl;
@@ -107,7 +107,7 @@ namespace SDataLinqProvider
             SDataUri uri = new SDataUri(sdataQuery);
             if (!string.IsNullOrEmpty(uri.Where))
                 request.QueryValues["where"] = uri.Where;
-            
+
             if (uri.QueryArgs.ContainsKey("select"))
                 request.QueryValues["select"] = uri.QueryArgs["select"];
 
@@ -139,14 +139,14 @@ namespace SDataLinqProvider
 
         internal TEntity GetEntity(string entityId)
         {
-            return GetEntityFromSData(entityId);    
+            return GetEntityFromSData(entityId);
         }
 
         internal static Type FindConcreteEntityType()
         {
             Assembly assembly = Assembly.Load("Sage.SData.Client.Entities");
             return assembly.GetTypes().Where(type => typeof (TEntity).IsAssignableFrom(type)).First();
-        }                
+        }
 
         private string Translate(Expression expression)
         {
@@ -163,7 +163,7 @@ namespace SDataLinqProvider
         void ISDataCrudProvider.Insert(IPersistentEntity entity)
         {
             var request = CreateResourceRequest(null);
-            request.Entry = CopyEntityToAtomEntry(entity); 
+            request.Entry = CopyEntityToAtomEntry(entity);
             request.Create();
         }
 
@@ -209,10 +209,10 @@ namespace SDataLinqProvider
                 return;
 
             if (prop.PropertyType.FullName.StartsWith("Sage.Entity.Interfaces") ||
-                prop.PropertyType.FullName.StartsWith("ICollection")) 
+                prop.PropertyType.FullName.StartsWith("ICollection"))
                 return;
 
-            if (!payload.Values.ContainsKey(prop.Name) || payload.Values[prop.Name] == null) 
+            if (!payload.Values.ContainsKey(prop.Name) || payload.Values[prop.Name] == null)
                 return;
 
             object convertedValue;
@@ -267,7 +267,7 @@ namespace SDataLinqProvider
                 request.ResourceSelector = "('" + entityId + "')";
             return request;
         }
-        
+
         #endregion
     }
 }
